@@ -1,32 +1,17 @@
----
-title: "K means"
-output: github_document
----
+#Which chemical properties influence the quality of red wines
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
-
-Which chemical properties influence the quality of red wines
-
-```{r,include=FALSE}
 # Load libraries
 library(tidyverse)
 library(corrplot)
 library(gridExtra)
 library(GGally)
 library(knitr)
-```
 
-Data
-```{r}
 # Read the stats
-wines <- read.csv("wineQualityReds.csv")
+wines <- read.csv("r/wineQualityReds.csv")
 wines <- wines[,2:13]
 kable(head(wines))
-```
 
-```{r}
 # Histogram for each Attribute
 wines %>%
   gather(Attributes, value) %>%
@@ -36,10 +21,7 @@ wines %>%
   labs(x="Values", y="Frequency",
        title="Red Wine Attributes - Histograms") +
   theme_bw()
-```
 
-
-```{r}
 # Density plot for each Attribute
 wines %>%
   gather(Attributes, value) %>%
@@ -49,10 +31,7 @@ wines %>%
   labs(x="Values", y="Density",
        title="Red Wine Attributes - Density plots") +
   theme_bw()
-```
 
-
-```{r}
 # Boxplot for each Attribute  
 wines %>%
   gather(Attributes, values, c(1:4, 6:12)) %>%
@@ -64,17 +43,11 @@ wines %>%
         axis.title.x=element_blank()) +
   ylim(0, 35) +
   coord_flip()
-```
 
 
-```{r}
 # Correlation matrix 
 corrplot(cor(wines), type="upper", method="ellipse", tl.cex=0.9)
-```
 
-
-
-```{r}
 # Relationship between fixed.acidity and citric.acid
 ggplot(wines, aes(x=fixed.acidity, y=citric.acid)) +
   geom_point() +
@@ -82,11 +55,7 @@ ggplot(wines, aes(x=fixed.acidity, y=citric.acid)) +
   labs(title="Wines Attributes",
        subtitle="Relationship between fixed acidity and citric acid") +
   theme_bw()
-```
 
-
-
-```{r}
 # Normalization
 winesNorm <- as.data.frame(scale(wines))
 
@@ -105,44 +74,26 @@ p2 <- ggplot(winesNorm, aes(x=alcohol, y=citric.acid)) +
 # Subplot
 grid.arrange(p1, p2, ncol=2)
 
-```
-
-
-```{r}
 # Execution of k-means with k=2
 set.seed(1234)
 wines_k2 <- kmeans(winesNorm, centers=2)
 wines_k2$cluster
-```
 
-
-```{r}
 # Cluster centers
 wines_k2$centers
-```
 
-```{r}
 # Between-cluster sum of squares
 wines_k2$betweenss
-```
 
-```{r}
 # Within-cluster sum of squares
 wines_k2$withinss
-```
 
-```{r}
 # Total within-cluster sum of squares 
 wines_k2$tot.withinss
-```
 
-```{r}
 # Total sum of squares
 wines_k2$totss
-```
 
-
-```{r}
 bss <- numeric()
 wss <- numeric()
 
@@ -168,18 +119,12 @@ p4 <- qplot(1:10, wss, geom=c("point", "line"),
             xlab="Number of clusters", ylab="Total within-cluster sum of squares") +
   scale_x_continuous(breaks=seq(0, 10, 1)) +
   theme_bw()
-```
 
-
-```{r}
 # Subplot
 grid.arrange(p3, p4, ncol=2)
-```
 
-We choose k=3
+# We choose k=3
 
-
-```{r}
 # Execution of k-means with k=3
 set.seed(1234)
 
@@ -187,19 +132,15 @@ wines_k3 <- kmeans(winesNorm, centers=3)
 
 # Mean values of each cluster
 aggregate(wines, by=list(wines_k3$cluster), mean)
-```
 
-
-```{r}
 ggpairs(cbind(wines, Cluster=as.factor(wines_k3$cluster)),
         columns=6:12, aes(colour=Cluster, alpha=0.5),
         lower=list(continuous="points"),
         upper=list(continuous="blank"),
         axisLabels="none", switch="both") +
   theme_bw()
-```
 
-
+ggplot(wines,aes(x=wines$alcohol,y=wines$quality))+geom_smooth()
 
 
 
